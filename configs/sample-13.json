@@ -2,7 +2,7 @@
   "output": "generated/sample.",
   "chain": "dev",
   "id": "erc20",
-  "startBlock": "12000000",
+  "startBlock": "13000000",
   "datasources": [
     {
       "module": [

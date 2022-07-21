@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-shopt -s nullglob
-modules=(src/datasources/*.yaml)
-
 function test() {
   modules=("$@")
 
@@ -31,9 +28,13 @@ function test() {
   npx graph codegen $tmp.subgraph.yaml || exit $?
   npx graph build $tmp.subgraph.yaml || exit $?
 
-  rm $tmp.json $tmp.schema.graphql $tmp.subgraph.yaml ${tmp/generated/build}.schema.graphql
+  rm $tmp.json $tmp.schema.graphql $tmp.subgraph.yaml
 }
 
+
+
+shopt -s nullglob
+modules=(src/datasources/*.yaml)
 
 if [ $# -eq 0 ];
 then

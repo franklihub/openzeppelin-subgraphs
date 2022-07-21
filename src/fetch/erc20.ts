@@ -21,26 +21,27 @@ import {
 	fetchAccount
 } from './account'
 
+import { BigDecimal } from '@graphprotocol/graph-ts'
+
 export function fetchERC20(address: Address): ERC20Contract {
-	let contract = ERC20Contract.load(address)
+	let account  = fetchAccount(address)
+	let contract = ERC20Contract.load(account.id)
 
 	if (contract == null) {
-		let endpoint         = IERC20.bind(address)
-		let name             = endpoint.try_name()
-		let symbol           = endpoint.try_symbol()
-		let decimals         = endpoint.try_decimals()
+		let endpoint              = IERC20.bind(address)
+		let name                  = endpoint.try_name()
+		let symbol                = endpoint.try_symbol()
+		let decimals              = endpoint.try_decimals()
+		contract                  = new ERC20Contract(account.id)
 
 		// Common
-		contract             = new ERC20Contract(address)
 		contract.name        = name.reverted     ? null : name.value
 		contract.symbol      = symbol.reverted   ? null : symbol.value
 		contract.decimals    = decimals.reverted ? 18   : decimals.value
 		contract.totalSupply = fetchERC20Balance(contract as ERC20Contract, null).id
-		contract.asAccount   = address
+		contract.asAccount   = account.id
+		account.asERC20      = contract.id
 		contract.save()
-
-		let account          = fetchAccount(address)
-		account.asERC20      = address
 		account.save()
 	}
 
@@ -48,7 +49,7 @@ export function fetchERC20(address: Address): ERC20Contract {
 }
 
 export function fetchERC20Balance(contract: ERC20Contract, account: Account | null): ERC20Balance {
-	let id      = contract.id.toHex().concat('/').concat(account ? account.id.toHex() : 'totalSupply')
+	let id      = contract.id.concat('/').concat(account ? account.id : 'totalSupply')
 	let balance = ERC20Balance.load(id)
 
 	if (balance == null) {
@@ -63,8 +64,31 @@ export function fetchERC20Balance(contract: ERC20Contract, account: Account | nu
 	return balance as ERC20Balance
 }
 
+export function try_fetchERC20Balance(address: Address, account: Address): ERC20Balance {
+	let _account  = fetchAccount(address)
+	let contract = ERC20Contract.load(_account.id)
+
+	let id = (contract as ERC20Contract).id.concat('/').concat(_account.id)
+
+	let balance = ERC20Balance.load(id)
+
+	let endpoint = IERC20.bind(address)
+
+	if (balance == null) {
+		balance                 = new ERC20Balance(id)
+		// balance.contract        = contract.id
+		balance.account         = account ? _account.id : null
+		balance.value           = constants.BIGDECIMAL_ZERO
+		balance.valueExact      = constants.BIGINT_ZERO
+		balance.save()
+	}
+	balance.value = new BigDecimal(endpoint.try_balanceOf(account).value)
+
+	return balance as ERC20Balance
+}
+
 export function fetchERC20Approval(contract: ERC20Contract, owner: Account, spender: Account): ERC20Approval {
-	let id       = contract.id.toHex().concat('/').concat(owner.id.toHex()).concat('/').concat(spender.id.toHex())
+	let id       = contract.id.concat('/').concat(owner.id).concat('/').concat(spender.id)
 	let approval = ERC20Approval.load(id)
 
 	if (approval == null) {

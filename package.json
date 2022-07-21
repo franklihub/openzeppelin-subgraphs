@@ -1,7 +1,7 @@
 {
-  "name": "@openzeppelin/subgraphs",
+  "name": "erc20-subgraph",
   "description": "Subgraph templates for @openzeppelin/contracts",
-  "version": "0.1.8-5",
+  "version": "0.1.6",
   "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
   "license": "MIT",
   "homepage": "https://github.com/OpenZeppelin/openzeppelin-subgraphs.git#readme",
@@ -9,10 +9,7 @@
     "generated/schema.ts",
     "generated/*.graphql",
     "generated/**/*.ts",
-    "src",
-    "CHANGELOG.md",
-    "LICENCE",
-    "README.md"
+    "src"
   ],
   "repository": {
     "type": "git",
@@ -22,6 +19,13 @@
     "url": "https://github.com/OpenZeppelin/openzeppelin-subgraphs.git/issues"
   },
   "scripts": {
+    "compiler-erc20": "graph-compiler --config configs/sample.json --include ./src/datasources --export-schema --export-subgraph",
+    "codegen-erc20": "graph codegen generated/sample.subgraph.yaml",
+    "build-erc20": "graph build generated/sample.subgraph.yaml",
+    "create-erc20-local": "graph create erc20 --node http://127.0.0.1:8020",
+    "deploy-erc20-local": "graph deploy erc20 --ipfs http://10.0.191.31:5001 --node http://127.0.0.1:8020 generated/sample.subgraph.yaml",
+    "create-erc20-dev": "graph create erc20 --node http://47.243.203.129:8020",
+    "deploy-erc20-dev": "graph deploy erc20 --ipfs http:/47.243.203.129:5001 --node http://47.243.203.129:8020 generated/sample.subgraph.yaml",
     "docs": "oz-docs",
     "docs:watch": "npm run docs watch",
     "prepublish": "rimraf artifacts build cache generated",
@@ -29,12 +33,13 @@
     "test": "bash scripts/test.sh"
   },
   "dependencies": {
-    "@amxx/graphprotocol-utils": "^1.1.0",
-    "@openzeppelin/contracts": "^4.6.0"
+    "@amxx/graphprotocol-utils": "^1.1.0-alpha.1",
+    "@openzeppelin/contracts": "^4.4.1",
+    "@openzeppelin/subgraphs": "^0.1.6"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.29.2",
-    "@graphprotocol/graph-ts": "^0.26.0",
+    "@graphprotocol/graph-cli": "^0.24.0",
+    "@graphprotocol/graph-ts": "^0.24.0",
     "@openzeppelin/docs-utils": "github:OpenZeppelin/docs-preview-script"
   }
 }
